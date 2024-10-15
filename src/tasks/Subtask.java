@@ -1,3 +1,5 @@
+package tasks;
+
 public class Subtask extends Task {
     private final int epicId;
 
@@ -6,7 +8,5 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
-    public int getEpicId() {
-        return epicId;
-    }
+    public int getEpicId() { return epicId; }
 }
