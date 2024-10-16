@@ -1,7 +1,4 @@
-package manager;
-
 import tasks.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +84,45 @@ public class TaskManager {
         return new ArrayList<>(epics.values());
     }
 
-    public void updateEpicStatus(Epic epic) {
+    // === Новые методы ===
+    public void updateTask(Task updatedTask) {
+        tasks.put(updatedTask.getId(), updatedTask);
+    }
+
+    public void updateSubtask(Subtask updatedSubtask) {
+        subtasks.put(updatedSubtask.getId(), updatedSubtask);
+        updateEpicStatus(epics.get(updatedSubtask.getEpicId()));
+    }
+
+    public void updateEpic(Epic updatedEpic) {
+        epics.put(updatedEpic.getId(), updatedEpic);
+    }
+
+    public void deleteTaskById(int id) {
+        tasks.remove(id);
+    }
+
+    public void deleteSubtaskById(int id) {
+        Subtask subtask = subtasks.remove(id);
+        if (subtask != null) {
+            Epic epic = epics.get(subtask.getEpicId());
+            if (epic != null) {
+                epic.removeSubtaskId(id);
+                updateEpicStatus(epic);
+            }
+        }
+    }
+
+    public void deleteEpicById(int id) {
+        Epic epic = epics.remove(id);
+        if (epic != null) {
+            for (int subtaskId : epic.getSubtaskIds()) {
+                subtasks.remove(subtaskId);
+            }
+        }
+    }
+
+    private void updateEpicStatus(Epic epic) {
         if (epic.getSubtaskIds().isEmpty()) {
             epic.setStatus(TaskStatus.NEW);
             return;

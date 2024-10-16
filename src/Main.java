@@ -1,8 +1,4 @@
-import manager.TaskManager;
-import tasks.Epic;
-import tasks.Subtask;
-import tasks.Task;
-import tasks.TaskStatus;
+import tasks.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -16,10 +12,11 @@ public class Main {
         System.out.println(taskManager.getSubtasksByEpicId(epic.getId()));
 
         subtask1.setStatus(TaskStatus.DONE);
-        taskManager.updateEpicStatus(epic);
+        taskManager.updateSubtask(subtask1);  // Обновляем подзадачу
+
         System.out.println("Статус эпика после обновления: " + epic.getStatus());
 
-        taskManager.deleteAllSubtasks();
-        System.out.println("Подзадачи после удаления: " + taskManager.getAllSubtasks());
+        taskManager.deleteSubtaskById(subtask2.getId());
+        System.out.println("Подзадачи после удаления одной: " + taskManager.getSubtasksByEpicId(epic.getId()));
     }
 }

@@ -15,12 +15,12 @@ public class Epic extends Task {
         subtaskIds.add(subtaskId);
     }
 
-    public void removeSubtaskId(int subtaskId) {
-        subtaskIds.remove((Integer) subtaskId);
+    public void removeSubtaskId(Integer subtaskId) {  // Исправлено: принимаем сразу Integer
+        subtaskIds.remove(subtaskId);
     }
 
     public List<Integer> getSubtaskIds() {
-        return new ArrayList<>(subtaskIds); // Защита от изменений извне
+        return new ArrayList<>(subtaskIds);  // Защита от изменений извне
     }
 
     public void clearSubtaskIds() {
