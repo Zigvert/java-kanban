@@ -1,4 +1,5 @@
-import tasks.*;
+package tasks;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,7 +8,12 @@ public class TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
+    private final HistoryManager historyManager; // Менеджер истории
     private int idCounter = 1;
+
+    public TaskManager() {
+        this.historyManager = Managers.getDefaultHistory(); // Инициализация менеджера истории
+    }
 
     public Task createTask(Task task) {
         task.setId(idCounter++);
@@ -61,11 +67,19 @@ public class TaskManager {
     }
 
     public Task getTaskById(int id) {
-        return tasks.get(id);
+        Task task = tasks.get(id);
+        if (task != null) {
+            historyManager.add(task); // Добавление в историю
+        }
+        return task;
     }
 
     public Subtask getSubtaskById(int id) {
-        return subtasks.get(id);
+        Subtask subtask = subtasks.get(id);
+        if (subtask != null) {
+            historyManager.add(subtask); // Добавление в историю
+        }
+        return subtask;
     }
 
     public Epic getEpicById(int id) {
@@ -84,7 +98,6 @@ public class TaskManager {
         return new ArrayList<>(epics.values());
     }
 
-    // === Новые методы ===
     public void updateTask(Task updatedTask) {
         tasks.put(updatedTask.getId(), updatedTask);
     }
