@@ -11,11 +11,11 @@ import java.util.List;
 public interface TaskManager {
     int getCounterId(TypeTask typeTask);
 
-    ArrayList<Task> getAllTasks();
+    List<Task> getAllTasks();
 
-    ArrayList<Task> getAllEpics();
+    List<Epic> getAllEpics();
 
-    ArrayList<Task> getAllSubtasks();
+    List<Subtask> getAllSubtasks();
 
     void clearTasks();
 
@@ -31,7 +31,7 @@ public interface TaskManager {
 
     void removeTaskById(int id);
 
-    ArrayList<Subtask> getSubtaskEpic(Epic epic);
+    List<Subtask> getSubtaskEpic(Epic epic);
 
     void checkEpicStatus(int epicId);
 

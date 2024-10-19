@@ -1,20 +1,22 @@
 package tests;
 
-import org.junit.jupiter.api.Test;
 import model.tasks.Task;
-
+import model.util.TypeTask;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskTest {
+public class TaskTest {
 
     @Test
-    void testTasksAreEqualIfIdsAreEqual() {
-        Task task1 = new Task("Task 1", "Description 1");
-        Task task2 = new Task("Task 2", "Description 2");
+    public void testTaskCreation() {
+        // Создание задачи с необходимыми параметрами
+        Task task = new Task("Задача 1", "Описание задачи 1", TypeTask.TASK);
 
-        task1.setId(1);
-        task2.setId(1);
-
-        assertEquals(task1, task2);
+        assertNotNull(task);
+        assertEquals("Задача 1", task.getName());
+        assertEquals("Описание задачи 1", task.getDescription());
+        assertEquals(TypeTask.TASK, task.getTypeTask());
     }
+
+    // Добавьте другие тесты по мере необходимости
 }

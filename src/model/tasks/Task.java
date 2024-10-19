@@ -3,21 +3,21 @@ package model.tasks;
 import model.util.Status;
 import model.util.TypeTask;
 
-import java.util.Objects;
-
 public class Task {
-    private final String name;
-    private final String description;
     private int id;
+    private String name;
+    private String description;
     private Status status;
-    protected TypeTask typeTask;
+    private TypeTask typeTask;
 
-    public Task(String name, String description) {
+
+    public Task(String name, String description, TypeTask typeTask) {
         this.name = name;
         this.description = description;
         this.status = Status.NEW;
-        this.typeTask = TypeTask.TASK;
+        this.typeTask = typeTask;
     }
+
 
     public Task(String name, String description, Status status, int id) {
         this.name = name;
@@ -27,54 +27,40 @@ public class Task {
         this.typeTask = TypeTask.TASK;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Status getStatus() {
-        return status;
+    // Геттеры и сеттеры
+    public int getId() {
+        return id;
     }
 
     public void setId(int id) {
         this.id = id;
     }
 
-    public int getId() {
-        return this.id;
-    }
-
-    public TypeTask getTypeTask() {
-        return typeTask;
-    }
-
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        //  if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return id == task.id;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public Status getStatus() {
+        return status;
     }
 
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName() + '{' +
-                "название='" + name + '\'' +
-                ", описание='" + description + '\'' +
-                ", id=" + id + '\'' +
-                ", статус=" + status +
-                '}';
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public TypeTask getTypeTask() {
+        return typeTask;
     }
 }
