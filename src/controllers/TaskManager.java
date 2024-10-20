@@ -3,19 +3,19 @@ package controllers;
 import model.tasks.Epic;
 import model.tasks.Subtask;
 import model.tasks.Task;
-import model.util.TypeTask;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
-    int getCounterId(TypeTask typeTask);
 
-    List<Task> getAllTasks();
 
-    List<Epic> getAllEpics();
+    ArrayList<Task> getAllTasks();
 
-    List<Subtask> getAllSubtasks();
+    ArrayList<Task> getAllEpics();
+
+    ArrayList<Task> getAllSubtasks();
 
     void clearTasks();
 
@@ -31,9 +31,9 @@ public interface TaskManager {
 
     void removeTaskById(int id);
 
-    List<Subtask> getSubtaskEpic(Epic epic);
+    ArrayList<Subtask> getSubtaskEpic(Epic epic);
 
-    void checkEpicStatus(int epicId);
+
 
     List<Task> getHistory();
 }
