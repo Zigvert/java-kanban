@@ -1,10 +1,10 @@
-package controllers;
+package service;
 
-import model.tasks.Epic;
-import model.tasks.Subtask;
-import model.tasks.Task;
-import model.util.Status;
-import model.util.TypeTask;
+import model.task.Epic;
+import model.task.Subtask;
+import model.task.Task;
+import model.dictionary.Status;
+import model.dictionary.TaskType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    private final HistoryManager historyManager = ManagerProvider.getDefaultHistory();
 
 
     private int generateId() {
@@ -23,10 +23,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
 
-    private TypeTask getTypeById(int id) {
-        if (tasks.containsKey(id)) return TypeTask.TASK;
-        if (subtasks.containsKey(id)) return TypeTask.SUBTASK;
-        if (epics.containsKey(id)) return TypeTask.EPIC;
+    private TaskType getTypeById(int id) {
+        if (tasks.containsKey(id)) return TaskType.TASK;
+        if (subtasks.containsKey(id)) return TaskType.SUBTASK;
+        if (epics.containsKey(id)) return TaskType.EPIC;
         return null; // Если нет такой задачи
     }
 
@@ -72,7 +72,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(int id) {
-        TypeTask type = getTypeById(id);
+        TaskType type = getTypeById(id);
         if (type == null) return null;
 
         Task task = switch (type) {
@@ -90,10 +90,19 @@ public class InMemoryTaskManager implements TaskManager {
         task.setId(generateId());
         switch (task.getTypeTask()) {
             case TASK -> tasks.put(task.getId(), task);
-            case SUBTASK -> subtasks.put(task.getId(), (Subtask) task);
+            case SUBTASK -> {
+                Subtask subtask = (Subtask) task;
+                subtasks.put(subtask.getId(), subtask);
+                Epic epic = epics.get(subtask.getEpicId());
+                if (epic != null) {
+                    epic.setSubtasks(subtask);
+                }
+            }
             case EPIC -> epics.put(task.getId(), (Epic) task);
         }
     }
+
+
 
     @Override
     public void updateTask(Task task) {
@@ -118,7 +127,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeTaskById(int id) {
-        TypeTask type = getTypeById(id);
+        TaskType type = getTypeById(id);
         if (type == null) return;
 
         switch (type) {

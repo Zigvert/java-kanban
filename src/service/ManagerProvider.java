@@ -1,6 +1,6 @@
-package controllers;
+package service;
 
-public class Managers {
+public class ManagerProvider {
     public static TaskManager getDefault(){
         return new InMemoryTaskManager();
     }

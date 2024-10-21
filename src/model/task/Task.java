@@ -1,7 +1,7 @@
-package model.tasks;
+package model.task;
 
-import model.util.Status;
-import model.util.TypeTask;
+import model.dictionary.Status;
+import model.dictionary.TaskType;
 
 import java.util.Objects;
 
@@ -10,13 +10,13 @@ public class Task {
     private final String description;
     private int id;
     private Status status;
-    protected TypeTask typeTask;
+    protected TaskType typeTask;
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
         this.status = Status.NEW;
-        this.typeTask = TypeTask.TASK;
+        this.typeTask = TaskType.TASK;
     }
 
     public Task(String name, String description, Status status, int id) {
@@ -24,7 +24,7 @@ public class Task {
         this.description = description;
         this.status = status;
         this.id = id;
-        this.typeTask = TypeTask.TASK;
+        this.typeTask = TaskType.TASK;
     }
 
     public void setStatus(Status status) {
@@ -43,7 +43,7 @@ public class Task {
         return id;
     }
 
-    public TypeTask getTypeTask() {
+    public TaskType getTypeTask() {
         return typeTask;
     }
 

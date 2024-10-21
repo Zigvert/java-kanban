@@ -1,4 +1,4 @@
-package model.util;
+package model.dictionary;
 
 public enum Status {
     NEW,

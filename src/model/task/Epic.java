@@ -1,6 +1,6 @@
-package model.tasks;
+package model.task;
 
-import model.util.TypeTask;
+import model.dictionary.TaskType;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,7 @@ public class Epic extends Task {
 
     public Epic(String name, String description) {
         super(name, description);
-        this.typeTask = TypeTask.EPIC;
+        this.typeTask = TaskType.EPIC;
     }
 
     public ArrayList<Integer> getSubtasksId() {

@@ -1,20 +1,20 @@
-package model.tasks;
+package model.task;
 
-import model.util.Status;
-import model.util.TypeTask;
+import model.dictionary.Status;
+import model.dictionary.TaskType;
 
 public class Subtask extends Task {
     private int epicId;
 
     public Subtask(String name, String description) {
         super(name, description);
-        this.typeTask = TypeTask.SUBTASK;
+        this.typeTask = TaskType.SUBTASK;
     }
 
     public Subtask(String name, String description, Status status, int id, int epicId) {
         super(name, description, status, id);
         this.epicId = epicId;
-        this.typeTask = TypeTask.SUBTASK;
+        this.typeTask = TaskType.SUBTASK;
     }
 
     public int getEpicId() {

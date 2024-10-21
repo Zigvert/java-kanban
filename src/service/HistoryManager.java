@@ -1,6 +1,6 @@
-package controllers;
+package service;
 
-import model.tasks.Task;
+import model.task.Task;
 
 import java.util.List;
 

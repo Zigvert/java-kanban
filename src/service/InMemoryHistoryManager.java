@@ -1,8 +1,7 @@
-package controllers;
+package service;
 
-import model.tasks.Task;
+import model.task.Task;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 

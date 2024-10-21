@@ -1,16 +1,16 @@
 package tasks;
 
-import controllers.Managers;
-import controllers.TaskManager;
-import model.tasks.Epic;
-import model.tasks.Subtask;
-import model.tasks.Task;
-import model.util.Status;
+import service.ManagerProvider;
+import service.TaskManager;
+import model.task.Epic;
+import model.task.Subtask;
+import model.task.Task;
+import model.dictionary.Status;
 
 public class Main {
         public static void main(String[] args) {
 
-                TaskManager tm = Managers.getDefault();
+                TaskManager tm = ManagerProvider.getDefault();
 
 
                 Task task1 = new Task("Задача 1", "Описание 1");
