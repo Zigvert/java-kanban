@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class InMemoryManagerTest {
     @DisplayName("Создание таскМенеджера")
     @Test
-    void getDefaultTest(){
+    void getDefaultTest() {
         TaskManager tm = ManagerProvider.getDefault();
         assertNotNull(tm, "TaskManager не создан");
     }
