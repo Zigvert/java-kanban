@@ -60,7 +60,7 @@ class TaskManagerTest {
 
         taskManager.removeTaskById(subtask.getId());
 
-        // Проверка, что эпик больше не содержит удаленную подзадачу
+        // РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ СЌРїРёРє Р±РѕР»СЊС€Рµ РЅРµ СЃРѕРґРµСЂР¶РёС‚ СѓРґР°Р»РµРЅРЅСѓСЋ РїРѕРґР·Р°РґР°С‡Сѓ
         assertEquals(0, taskManager.getSubtaskEpic(epic).size());
     }
 
