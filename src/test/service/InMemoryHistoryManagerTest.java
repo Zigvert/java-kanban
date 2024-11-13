@@ -21,8 +21,8 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     public void testHistoryManager() {
-        Task task1 = new Task("Задача 1", "Описание задачи 1", Status.NEW, 1);
-        Task task2 = new Task("Задача 2", "Описание задачи 2", Status.NEW, 2);
+        Task task1 = new Task("Р—Р°РґР°С‡Р° 1", "РћРїРёСЃР°РЅРёРµ Р·Р°РґР°С‡Рё 1", Status.NEW, 1);
+        Task task2 = new Task("Р—Р°РґР°С‡Р° 2", "РћРїРёСЃР°РЅРёРµ Р·Р°РґР°С‡Рё 2", Status.NEW, 2);
 
         target.add(task1);
         target.add(task2);
@@ -36,31 +36,31 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     public void testAddDuplicateTask() {
-        Task task1 = new Task("Задача 1", "Описание задачи 1", Status.NEW, 1);
-        Task task2 = new Task("Задача 1", "Описание задачи 1 (обновленная)", Status.NEW, 1);
+        Task task1 = new Task("Р—Р°РґР°С‡Р° 1", "РћРїРёСЃР°РЅРёРµ Р·Р°РґР°С‡Рё 1", Status.NEW, 1);
+        Task task2 = new Task("Р—Р°РґР°С‡Р° 1", "РћРїРёСЃР°РЅРёРµ Р·Р°РґР°С‡Рё 1 (РѕР±РЅРѕРІР»РµРЅРЅР°СЏ)", Status.NEW, 1);
 
         target.add(task1);
         target.add(task2);
 
         List<Task> history = target.getHistoryTask();
 
-        // После добавления новой версии задачи в историю, должна остаться только последняя версия
+        // РџРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ РЅРѕРІРѕР№ РІРµСЂСЃРёРё Р·Р°РґР°С‡Рё РІ РёСЃС‚РѕСЂРёСЋ, РґРѕР»Р¶РЅР° РѕСЃС‚Р°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РїРѕСЃР»РµРґРЅСЏСЏ РІРµСЂСЃРёСЏ
         assertEquals(1, history.size());
-        assertEquals(task2, history.get(0)); // Проверка, что осталась обновленная версия задачи
+        assertEquals(task2, history.get(0)); // РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ РѕСЃС‚Р°Р»Р°СЃСЊ РѕР±РЅРѕРІР»РµРЅРЅР°СЏ РІРµСЂСЃРёСЏ Р·Р°РґР°С‡Рё
     }
 
     @Test
     public void testRemoveTask() {
-        Task task1 = new Task("Задача 1", "Описание задачи 1", Status.NEW, 1);
-        Task task2 = new Task("Задача 2", "Описание задачи 2", Status.NEW, 2);
+        Task task1 = new Task("Р—Р°РґР°С‡Р° 1", "РћРїРёСЃР°РЅРёРµ Р·Р°РґР°С‡Рё 1", Status.NEW, 1);
+        Task task2 = new Task("Р—Р°РґР°С‡Р° 2", "РћРїРёСЃР°РЅРёРµ Р·Р°РґР°С‡Рё 2", Status.NEW, 2);
 
         target.add(task1);
         target.add(task2);
-        target.remove(1);  // Удаляем задачу по id
+        target.remove(1);  // РЈРґР°Р»СЏРµРј Р·Р°РґР°С‡Сѓ РїРѕ id
 
         List<Task> history = target.getHistoryTask();
 
         assertEquals(1, history.size());
-        assertEquals(task2, history.get(0)); // После удаления task1, должна остаться только task2
+        assertEquals(task2, history.get(0)); // РџРѕСЃР»Рµ СѓРґР°Р»РµРЅРёСЏ task1, РґРѕР»Р¶РЅР° РѕСЃС‚Р°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ task2
     }
 }
