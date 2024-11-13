@@ -9,17 +9,17 @@ import service.TaskManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryManagerTest {
-    @DisplayName("Создание таскМенеджера")
+    @DisplayName("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
     @Test
     void getDefaultTest() {
         TaskManager tm = ManagerProvider.getDefault();
-        assertNotNull(tm, "TaskManager не создан");
+        assertNotNull(tm, "TaskManager пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
     }
 
-    @DisplayName("Создание менеджера истории")
+    @DisplayName("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
     @Test
     void getDefaultHistoryManagerTest() {
         HistoryManager hm = ManagerProvider.getDefaultHistory();
-        assertNotNull(hm, "HistoryManager не создан");
+        assertNotNull(hm, "HistoryManager пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
     }
 }
