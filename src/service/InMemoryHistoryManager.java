@@ -45,7 +45,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             tail = newNode;
         }
 
-        // Обновляем HashMap
+
         taskMap.put(task.getId(), tail);
     }
 
