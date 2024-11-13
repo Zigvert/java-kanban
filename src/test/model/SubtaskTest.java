@@ -1,7 +1,6 @@
 package test.model;
 
 import model.task.Subtask;
-import model.dictionary.Status;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
