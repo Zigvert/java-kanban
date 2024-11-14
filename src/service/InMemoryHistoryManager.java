@@ -14,8 +14,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         Node prev;
         Node next;
 
-        public Node(Task task) {
+        public Node(Task task, Node prev) {
             this.task = task;
+            this.prev = prev;
         }
     }
 
@@ -29,32 +30,23 @@ public class InMemoryHistoryManager implements HistoryManager {
             return;
         }
 
+        removeNode(taskMap.get(task.getId()));
 
-        if (taskMap.containsKey(task.getId())) {
-            removeNode(taskMap.get(task.getId()));
-        }
-
-
-        Node newNode = new Node(task);
+        Node newNode = new Node(task, tail);
         if (tail == null) {
             head = newNode;
-            tail = newNode;
         } else {
             tail.next = newNode;
-            newNode.prev = tail;
-            tail = newNode;
         }
-
+        tail = newNode;
 
         taskMap.put(task.getId(), tail);
     }
 
     @Override
     public void remove(int id) {
-        Node node = taskMap.remove(id);
-        if (node != null) {
-            removeNode(node);
-        }
+        removeNode(taskMap.get(id));
+
     }
 
     @Override
@@ -71,19 +63,20 @@ public class InMemoryHistoryManager implements HistoryManager {
     private void removeNode(Node node) {
         if (node == null) return;
 
+        taskMap.remove(node.task.getId());
+
+        if (node == head) {
+            head = node.next;
+        }
+        if (node == tail) {
+            tail = node.prev;
+        }
 
         if (node.prev != null) {
             node.prev.next = node.next;
-        } else {
-            head = node.next;
         }
-
-
         if (node.next != null) {
             node.next.prev = node.prev;
-        } else {
-            tail = node.prev;
         }
     }
 }
-
