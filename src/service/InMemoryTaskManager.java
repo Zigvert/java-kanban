@@ -17,11 +17,22 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager historyManager = ManagerProvider.getDefaultHistory();
 
+    // Геттеры для доступа к коллекциям
+    public HashMap<Integer, Task> getTasks() {
+        return tasks;
+    }
+
+    public HashMap<Integer, Epic> getEpics() {
+        return epics;
+    }
+
+    public HashMap<Integer, Subtask> getSubtasks() {
+        return subtasks;
+    }
 
     private int generateId() {
         return counterId++;
     }
-
 
     private TaskType getTypeById(int id) {
         if (tasks.containsKey(id)) return TaskType.TASK;
@@ -102,8 +113,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-
-
     @Override
     public void updateTask(Task task) {
         if (getTypeById(task.getId()) != task.getTypeTask()) {
@@ -156,7 +165,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return subtasksEpic;
     }
-
 
     private void updateEpicStatus(Epic epic) {
         int counterNew = 0;
