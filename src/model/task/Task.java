@@ -71,10 +71,10 @@ public class Task {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "{" +
-                "название='" + name + '\'' +
-                ", описание='" + description + '\'' +
+                "РЅР°Р·РІР°РЅРёРµ='" + name + '\'' +
+                ", РѕРїРёСЃР°РЅРёРµ='" + description + '\'' +
                 ", id=" + id +
-                ", статус=" + status +
+                ", СЃС‚Р°С‚СѓСЃ=" + status +
                 '}';
     }
 }

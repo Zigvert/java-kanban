@@ -27,7 +27,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (tasks.containsKey(id)) return TaskType.TASK;
         if (subtasks.containsKey(id)) return TaskType.SUBTASK;
         if (epics.containsKey(id)) return TaskType.EPIC;
-        return null; // Если нет такой задачи
+        return null;
     }
 
     @Override
