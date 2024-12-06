@@ -4,13 +4,9 @@ import model.task.Epic;
 import model.task.Subtask;
 import model.task.Task;
 import model.dictionary.TaskType;
+import model.dictionary.Status;
 
-public class TaskUtils {
-
-    public static String toString(Task task) {
-        return task.getId() + "," + task.getTypeTask() + "," + task.getName() + "," + task.getStatus() + "," + task.getDescription() +
-                (task instanceof Subtask ? "," + ((Subtask) task).getEpicId() : "");
-    }
+public class TaskFileUtils {
 
     public static Task fromString(String value) {
         String[] fields = value.split(",");
@@ -31,5 +27,16 @@ public class TaskUtils {
             default:
                 throw new IllegalArgumentException("Неизвестный тип задачи: " + type);
         }
+    }
+
+    public static String toString(Task task) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(task.getId()).append(",").append(task.getTypeTask()).append(",")
+                .append(task.getName()).append(",").append(task.getStatus()).append(",")
+                .append(task.getDescription());
+        if (task instanceof Subtask) {
+            sb.append(",").append(((Subtask) task).getEpicId());
+        }
+        return sb.toString();
     }
 }

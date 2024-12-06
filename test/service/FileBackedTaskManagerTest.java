@@ -1,6 +1,9 @@
 package service;
 
+import model.task.Epic;
+import model.task.Subtask;
 import model.task.Task;
+import model.dictionary.Status;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,12 +19,20 @@ public class FileBackedTaskManagerTest {
         Task task = new Task("Test Task", "Description");
         manager.addTask(task);
 
+        Epic epic = new Epic("Epic Task", "Epic Description");
+        manager.addTask(epic);
+
+        Subtask subtask = new Subtask("Subtask", "Subtask Description", Status.NEW, 1, epic.getId());
+        manager.addTask(subtask);
+
         manager.save();
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
-        assertEquals(manager.getTasks().size(), loadedManager.getTasks().size());
-        assertTrue(loadedManager.getTasks().containsKey(task.getId()));
+        assertEquals(manager.getTasks(), loadedManager.getTasks());
+
+        assertEquals(manager.getEpics(), loadedManager.getEpics());
+
+        assertEquals(manager.getSubtasks(), loadedManager.getSubtasks());
     }
 }
-

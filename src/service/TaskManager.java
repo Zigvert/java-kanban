@@ -4,12 +4,10 @@ import model.task.Epic;
 import model.task.Subtask;
 import model.task.Task;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
-
 
     ArrayList<Task> getAllTasks();
 
@@ -32,8 +30,6 @@ public interface TaskManager {
     void removeTaskById(int id);
 
     ArrayList<Subtask> getSubtaskEpic(Epic epic);
-
-
 
     List<Task> getHistory();
 }

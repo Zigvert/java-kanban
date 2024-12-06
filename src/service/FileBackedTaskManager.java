@@ -1,10 +1,9 @@
 package service;
 
-import exception.ManagerSaveException;
 import model.task.Epic;
-import model.dictionary.Status;
 import model.task.Subtask;
 import model.task.Task;
+import model.dictionary.Status;
 import model.dictionary.TaskType;
 
 import java.io.*;
@@ -19,9 +18,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.file = file;
     }
 
-
     public void addTask(Task task) {
-
         if (task.getTypeTask() == TaskType.TASK) {
             getTasks().put(task.getId(), task);
         } else if (task.getTypeTask() == TaskType.EPIC) {
@@ -29,6 +26,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } else if (task.getTypeTask() == TaskType.SUBTASK) {
             getSubtasks().put(task.getId(), (Subtask) task);
         }
+        save();
     }
 
     public void save() {
@@ -61,11 +59,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     case TASK -> manager.getTasks().put(task.getId(), task);
                     case EPIC -> manager.getEpics().put(task.getId(), (Epic) task);
                     case SUBTASK -> {
-                        Subtask subtask = (Subtask) task;
-                        manager.getSubtasks().put(task.getId(), subtask);
-                        Epic epic = manager.getEpics().get(subtask.getEpicId());
+                        manager.getSubtasks().put(task.getId(), (Subtask) task);
+                        Epic epic = manager.getEpics().get(((Subtask) task).getEpicId());
                         if (epic != null) {
-                            epic.setSubtasks(subtask);
+                            epic.setSubtasks((Subtask) task);
                         }
                     }
                 }
@@ -91,15 +88,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 return new Epic(name, description);
             case SUBTASK:
                 int epicId = Integer.parseInt(fields[5]);
-                Subtask subtask = new Subtask(name, description, status, id, epicId);
-                return subtask;
+                return new Subtask(name, description, status, id, epicId);
             default:
                 throw new IllegalArgumentException("Неизвестный тип задачи: " + type);
         }
     }
 
+
+
     private String toString(Task task) {
-        return task.getId() + "," + task.getTypeTask() + "," + task.getName() + "," + task.getStatus() + ","
-                + task.getDescription() + (task instanceof Subtask ? "," + ((Subtask) task).getEpicId() : "");
+        return task.getId() + "," + task.getTypeTask() + "," + task.getName() + "," + task.getStatus() + "," + task.getDescription() +
+                (task instanceof Subtask ? "," + ((Subtask) task).getEpicId() : "");
     }
 }
+
