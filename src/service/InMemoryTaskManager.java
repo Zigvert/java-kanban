@@ -28,6 +28,7 @@ public class InMemoryTaskManager implements TaskManager {
     public HashMap<Integer, Subtask> getSubtasks() {
         return subtasks;
     }
+
     private int generateId() {
         return counterId++;
     }
@@ -75,6 +76,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (Subtask subtask : subtasks.values()) {
             epics.get(subtask.getEpicId()).removeSubtaskId(subtask.getId());
         }
+
         subtasks.clear();
         epics.values().forEach(this::updateEpicStatus);
     }
@@ -110,7 +112,7 @@ public class InMemoryTaskManager implements TaskManager {
             case EPIC -> epics.put(task.getId(), (Epic) task);
         }
     }
-    
+
     @Override
     public void updateTask(Task task) {
         if (getTypeById(task.getId()) != task.getTypeTask()) {
