@@ -31,12 +31,8 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        if (subtasksId.isEmpty()) {
-            return super.toString();
-        } else {
-            return super.toString() +
-                    " id ????????=" + subtasksId +
-                    "}";
-        }
+        return super.toString() +
+                (subtasksId.isEmpty() ? "" : " subtasksId=" + subtasksId) +
+                "}";
     }
 }
