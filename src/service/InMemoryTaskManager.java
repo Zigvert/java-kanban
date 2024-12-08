@@ -17,11 +17,21 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager historyManager = ManagerProvider.getDefaultHistory();
 
+    public HashMap<Integer, Task> getTasks() {
+        return tasks;
+    }
+
+    public HashMap<Integer, Epic> getEpics() {
+        return epics;
+    }
+
+    public HashMap<Integer, Subtask> getSubtasks() {
+        return subtasks;
+    }
 
     private int generateId() {
         return counterId++;
     }
-
 
     private TaskType getTypeById(int id) {
         if (tasks.containsKey(id)) return TaskType.TASK;
@@ -66,6 +76,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (Subtask subtask : subtasks.values()) {
             epics.get(subtask.getEpicId()).removeSubtaskId(subtask.getId());
         }
+
         subtasks.clear();
         epics.values().forEach(this::updateEpicStatus);
     }
@@ -101,8 +112,6 @@ public class InMemoryTaskManager implements TaskManager {
             case EPIC -> epics.put(task.getId(), (Epic) task);
         }
     }
-
-
 
     @Override
     public void updateTask(Task task) {
@@ -156,7 +165,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return subtasksEpic;
     }
-
 
     private void updateEpicStatus(Epic epic) {
         int counterNew = 0;
