@@ -23,12 +23,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
-        super.updateTask(task);
-        save();
-    }
-
-    @Override
     public void removeTaskById(int id) {
         super.removeTaskById(id);
         save();
@@ -52,21 +46,34 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
+    @Override
+    public Task getTaskById(int id) {
+        Task task = super.getTaskById(id);
+        save();
+        return task;
+    }
+
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write("id,type,name,status,description,epic\n");
-            for (Task task : getTasks().values()) {
+
+            for (Task task : tasks.values()) {
                 writer.write(TaskFileUtils.toString(task));
                 writer.newLine();
             }
-            for (Epic epic : getEpics().values()) {
+
+            for (Epic epic : epics.values()) {
                 writer.write(TaskFileUtils.toString(epic));
                 writer.newLine();
             }
-            for (Subtask subtask : getSubtasks().values()) {
+
+            for (Subtask subtask : subtasks.values()) {
                 writer.write(TaskFileUtils.toString(subtask));
                 writer.newLine();
             }
+
+            writer.newLine();
+            writer.write(TaskFileUtils.historyToString(historyManager.getHistoryTask()));
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка сохранения данных в файл: " + file.getAbsolutePath(), e);
         }
@@ -76,36 +83,41 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
         try {
             List<String> lines = Files.readAllLines(file.toPath());
-            int taskId = 1;
-            int epicId = 1;
-            int subtaskId = 1;
+            int maxId = 0;
 
-            for (int i = 1; i < lines.size(); i++) {
-                Task task = TaskFileUtils.fromString(lines.get(i));
-                switch (task.getTypeTask()) {
-                    case TASK -> {
-                        task.setId(taskId++);
-                        manager.getTasks().put(task.getId(), task);
-                    }
-                    case EPIC -> {
-                        task.setId(epicId++);
-                        manager.getEpics().put(task.getId(), (Epic) task);
-                    }
-                    case SUBTASK -> {
-                        Subtask subtask = (Subtask) task;
-                        subtask.setId(subtaskId++);
-                        manager.getSubtasks().put(subtask.getId(), subtask);
-                        // Добавляем подзадачу в эпик
-                        Epic epic = manager.getEpics().get(subtask.getEpicId());
-                        if (epic != null) {
-                            epic.setSubtasks(subtask);
-                        }
+            for (String line : lines) {
+                if (line.isBlank() || line.startsWith("id,")) continue;
+
+                Task task = TaskFileUtils.fromString(line);
+                manager.setTask(task);
+                maxId = Math.max(maxId, task.getId());
+            }
+
+            for (Task task : manager.getAllTasks()) {
+                if (task instanceof Subtask) {
+                    Subtask subtask = (Subtask) task;
+                    Epic epic = (Epic) manager.getTaskById(subtask.getEpicId());
+                    if (epic != null) {
+                        epic.addSubtask(subtask);
                     }
                 }
             }
+
+            String historyString = lines.get(lines.size() - 1);
+            manager.setHistory(TaskFileUtils.historyFromString(historyString, manager));
+
+            manager.synchronizeCounterId(maxId);
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка загрузки данных из файла: " + file.getAbsolutePath(), e);
         }
         return manager;
+    }
+
+    public void setHistory(List<Task> history) {
+        historyManager.setHistory(history);
+    }
+
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 }

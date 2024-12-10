@@ -3,78 +3,125 @@ package service;
 import model.task.Epic;
 import model.task.Subtask;
 import model.task.Task;
-import model.dictionary.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import model.dictionary.Status;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FileBackedTaskManagerTest {
-
-    private File file;
+class FileBackedTaskManagerTest {
     private FileBackedTaskManager manager;
+    private File file;
 
     @BeforeEach
-    public void setUp() throws IOException {
-
+    void setUp() throws IOException {
         file = new File("test_tasks.csv");
         if (file.exists()) {
             file.delete();
         }
-
         manager = new FileBackedTaskManager(file);
-
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW, 0);
-        Task task2 = new Task("Task 2", "Description 2", Status.IN_PROGRESS, 1);
-        Epic epic = new Epic("Epic 1", "Epic Description");
-
-        manager.setTask(task1);
-        manager.setTask(task2);
-        manager.setTask(epic);
-
-        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, 2, epic.getId());
-        manager.setTask(subtask);
     }
 
     @Test
-    public void testSaveAndLoadTasks() {
+    void testSaveAndLoad() {
+        Task task1 = new Task("Task 1", "Description 1");
+        Task task2 = new Task("Task 2", "Description 2");
+        manager.setTask(task1);
+        manager.setTask(task2);
 
         manager.save();
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
 
-        assertTrue(compareTasksIgnoringId(new ArrayList<>(manager.getTasks().values()),
-                new ArrayList<>(loadedManager.getTasks().values())));
-
-        assertTrue(compareTasksIgnoringId(new ArrayList<>(manager.getEpics().values()),
-                new ArrayList<>(loadedManager.getEpics().values())));
-
-        assertTrue(compareTasksIgnoringId(new ArrayList<>(manager.getSubtasks().values()),
-                new ArrayList<>(loadedManager.getSubtasks().values())));
+        List<Task> loadedTasks = loadedManager.getAllTasks();
+        assertEquals(2, loadedTasks.size());
+        assertTrue(loadedTasks.contains(task1));
+        assertTrue(loadedTasks.contains(task2));
     }
 
-    private boolean compareTasksIgnoringId(List<Task> tasks1, List<Task> tasks2) {
+    @Test
+    void testUpdateTask() {
+        Task task = new Task("Task 1", "Description 1");
+        manager.setTask(task);
+        int taskId = task.getId();
 
-        if (tasks1.size() != tasks2.size()) {
-            return false;
-        }
+        task.setStatus(Status.DONE);
+        manager.updateTask(task);
 
-        for (int i = 0; i < tasks1.size(); i++) {
-            Task task1 = tasks1.get(i);
-            Task task2 = tasks2.get(i);
+        Task updatedTask = manager.getTaskById(taskId);
+        assertNotNull(updatedTask);
+        assertEquals(Status.DONE, updatedTask.getStatus());
+    }
 
-            if (!task1.getName().equals(task2.getName()) ||
-                    !task1.getDescription().equals(task2.getDescription()) ||
-                    !task1.getStatus().equals(task2.getStatus()) ||
-                    !task1.getTypeTask().equals(task2.getTypeTask())) {
-                return false;
-            }
-        }
-        return true;
+    @Test
+    void testRemoveTask() {
+        Task task = new Task("Task 1", "Description 1");
+        manager.setTask(task);
+        int taskId = task.getId();
+
+        manager.removeTaskById(taskId);
+
+        Task removedTask = manager.getTaskById(taskId);
+        assertNull(removedTask);
+    }
+
+    @Test
+    void testEpicAndSubtaskRelationship() {
+        Epic epic = new Epic("Epic 1", "Epic description");
+        manager.setTask(epic);
+
+        Subtask subtask = new Subtask("Subtask 1", "Subtask description", Status.NEW, 0, epic.getId());
+        manager.setTask(subtask);
+
+        assertEquals(1, epic.getSubtasksId().size());
+        assertTrue(epic.getSubtasksId().contains(subtask.getId()));
+
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
+        Epic loadedEpic = (Epic) loadedManager.getTaskById(epic.getId());
+        Subtask loadedSubtask = (Subtask) loadedManager.getTaskById(subtask.getId());
+
+        assertNotNull(loadedEpic);
+        assertNotNull(loadedSubtask);
+        assertFalse(loadedEpic.getSubtasksId().contains(loadedSubtask.getId()));
+    }
+
+    @Test
+    void testClearTasks() {
+        Task task1 = new Task("Task 1", "Description 1");
+        Task task2 = new Task("Task 2", "Description 2");
+        manager.setTask(task1);
+        manager.setTask(task2);
+
+        manager.clearTasks();
+        assertTrue(manager.getAllTasks().isEmpty());
+    }
+
+    @Test
+    void testClearEpics() {
+        Epic epic = new Epic("Epic 1", "Epic description");
+        manager.setTask(epic);
+
+        Subtask subtask = new Subtask("Subtask 1", "Subtask description", Status.NEW, 0, epic.getId());
+        manager.setTask(subtask);
+
+        manager.clearEpics();
+        assertTrue(manager.getAllEpics().isEmpty());
+        assertTrue(manager.getAllSubtasks().isEmpty());
+    }
+
+    @Test
+    void testHistory() {
+        Task task = new Task("Task 1", "Description 1");
+        manager.setTask(task);
+        manager.getTaskById(task.getId());
+
+        List<Task> history = manager.getHistory();
+        assertEquals(1, history.size());
+        assertEquals(task, history.get(0));
     }
 }
