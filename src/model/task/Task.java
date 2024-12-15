@@ -27,6 +27,13 @@ public class Task {
         this.typeTask = TaskType.TASK;
     }
 
+    public Task(String name, String description, Status status) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.typeTask = TaskType.TASK;
+    }
+
     public void setStatus(Status status) {
         this.status = status;
     }

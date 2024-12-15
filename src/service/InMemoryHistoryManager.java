@@ -46,7 +46,6 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void remove(int id) {
         removeNode(taskMap.get(id));
-
     }
 
     @Override
