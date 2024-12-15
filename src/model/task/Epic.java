@@ -7,41 +7,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
-    private ArrayList<Integer> subtasksId = new ArrayList<>();
-    private List<Subtask> subtasks = new ArrayList<>();
-
-    public void addSubtask(Subtask subtask) {
-        subtasks.add(subtask);
-    }
-
-    public List<Subtask> getSubtasks() {
-        return subtasks;
-    }
+    private List<Integer> subtasksId = new ArrayList<>();
 
     public Epic(String name, String description) {
-        super(name, description);
+        super(name, description, Status.NEW);
         this.typeTask = TaskType.EPIC;
     }
 
     public Epic(String name, String description, int id) {
         super(name, description, Status.NEW, id);
+        this.typeTask = TaskType.EPIC;
     }
 
-    public ArrayList<Integer> getSubtasksId() {
+    public List<Integer> getSubtasksId() {
         return subtasksId;
     }
 
-    public void setSubtasksId(ArrayList<Integer> subtasksId) {
+    public void setSubtasksId(List<Integer> subtasksId) {
         this.subtasksId = subtasksId;
     }
 
-    public void removeSubtaskId(Integer id) {
-        subtasksId.remove(id);
+    public void addSubtaskId(int subtaskId) {
+        if (!subtasksId.contains(subtaskId)) {
+            subtasksId.add(subtaskId);
+        }
     }
 
-    public void setSubtasks(Subtask subtask) {
-        subtask.setEpicId(super.getId());
-        subtasksId.add(subtask.getId());
+    public void removeSubtaskId(int subtaskId) {
+        subtasksId.remove(Integer.valueOf(subtaskId));
     }
 
     @Override
@@ -51,4 +44,3 @@ public class Epic extends Task {
                 "}";
     }
 }
-

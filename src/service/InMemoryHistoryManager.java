@@ -59,17 +59,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         return tasks;
     }
 
-    @Override
-    public void setHistory(List<Task> history) {
-
-        head = tail = null;
-        taskMap.clear();
-
-        for (Task task : history) {
-            add(task);
-        }
-    }
-
     private void removeNode(Node node) {
         if (node == null) return;
 

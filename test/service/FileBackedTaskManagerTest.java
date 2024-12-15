@@ -87,7 +87,7 @@ class FileBackedTaskManagerTest {
 
         assertNotNull(loadedEpic);
         assertNotNull(loadedSubtask);
-        assertFalse(loadedEpic.getSubtasksId().contains(loadedSubtask.getId()));
+        assertTrue(loadedEpic.getSubtasksId().contains(loadedSubtask.getId()));
     }
 
     @Test

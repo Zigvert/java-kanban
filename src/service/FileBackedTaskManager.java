@@ -72,8 +72,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 writer.newLine();
             }
 
-            writer.newLine();
-            writer.write(TaskFileUtils.historyToString(historyManager.getHistoryTask()));
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка сохранения данных в файл: " + file.getAbsolutePath(), e);
         }
@@ -98,26 +96,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     Subtask subtask = (Subtask) task;
                     Epic epic = (Epic) manager.getTaskById(subtask.getEpicId());
                     if (epic != null) {
-                        epic.addSubtask(subtask);
+                        epic.addSubtaskId(subtask.getId());
                     }
                 }
             }
 
-            String historyString = lines.get(lines.size() - 1);
-            manager.setHistory(TaskFileUtils.historyFromString(historyString, manager));
-
             manager.synchronizeCounterId(maxId);
+
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка загрузки данных из файла: " + file.getAbsolutePath(), e);
         }
         return manager;
-    }
-
-    public void setHistory(List<Task> history) {
-        historyManager.setHistory(history);
-    }
-
-    public HistoryManager getHistoryManager() {
-        return historyManager;
     }
 }
