@@ -3,6 +3,8 @@ package model.task;
 import model.dictionary.Status;
 import model.dictionary.TaskType;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -11,43 +13,37 @@ public class Task {
     private int id;
     private Status status;
     protected TaskType typeTask;
+    private Duration duration;
+    private LocalDateTime startTime;
 
-    public Task(String name, String description) {
-        this.name = name;
-        this.description = description;
-        this.status = Status.NEW;
-        this.typeTask = TaskType.TASK;
-    }
-
-    public Task(String name, String description, Status status, int id) {
+    public Task(String name, String description, Status status, Duration duration, LocalDateTime startTime, int id) {
         this.name = name;
         this.description = description;
         this.status = status;
-        this.id = id;
         this.typeTask = TaskType.TASK;
+        this.duration = duration;
+        this.startTime = startTime;
+        this.id = id;
     }
 
     public Task(String name, String description, Status status) {
-        this.name = name;
-        this.description = description;
-        this.status = status;
-        this.typeTask = TaskType.TASK;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
+        this(name, description, status, Duration.ZERO, null, 0);
     }
 
     public Status getStatus() {
         return status;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public TaskType getTypeTask() {
@@ -60,6 +56,29 @@ public class Task {
 
     public String getDescription() {
         return description;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null || duration == null) {
+            return null;
+        }
+        return startTime.plus(duration);
     }
 
     @Override
@@ -78,10 +97,12 @@ public class Task {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "{" +
-                "название='" + name + '\'' +
-                ", описание='" + description + '\'' +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
                 ", id=" + id +
-                ", статус=" + status +
+                ", status=" + status +
+                ", startTime=" + startTime +
+                ", duration=" + duration +
                 '}';
     }
 }

@@ -6,6 +6,6 @@ public class ManagerProvider {
     }
 
     public static HistoryManager getDefaultHistory() {
-        return new InMemoryHistoryManager();
+        return new InMemoryHistoryManager(10);
     }
 }

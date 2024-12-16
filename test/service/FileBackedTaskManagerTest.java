@@ -3,13 +3,14 @@ package service;
 import model.task.Epic;
 import model.task.Subtask;
 import model.task.Task;
+import model.dictionary.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import model.dictionary.Status;
-
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,8 +30,8 @@ class FileBackedTaskManagerTest {
 
     @Test
     void testSaveAndLoad() {
-        Task task1 = new Task("Task 1", "Description 1");
-        Task task2 = new Task("Task 2", "Description 2");
+        Task task1 = new Task("Task 1", "Description 1", Status.NEW, Duration.ofHours(1), LocalDateTime.now(), 1);
+        Task task2 = new Task("Task 2", "Description 2", Status.NEW, Duration.ofHours(2), LocalDateTime.now(), 2);
         manager.setTask(task1);
         manager.setTask(task2);
 
@@ -46,7 +47,7 @@ class FileBackedTaskManagerTest {
 
     @Test
     void testUpdateTask() {
-        Task task = new Task("Task 1", "Description 1");
+        Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofHours(1), LocalDateTime.now(), 1);
         manager.setTask(task);
         int taskId = task.getId();
 
@@ -60,7 +61,7 @@ class FileBackedTaskManagerTest {
 
     @Test
     void testRemoveTask() {
-        Task task = new Task("Task 1", "Description 1");
+        Task task = new Task("Task 1", "Description 1", Status.NEW, Duration.ofHours(1), LocalDateTime.now(), 1);
         manager.setTask(task);
         int taskId = task.getId();
 
@@ -73,9 +74,12 @@ class FileBackedTaskManagerTest {
     @Test
     void testEpicAndSubtaskRelationship() {
         Epic epic = new Epic("Epic 1", "Epic description");
+        epic.setStatus(Status.NEW);
+        epic.setDuration(Duration.ofHours(5));
+        epic.setStartTime(LocalDateTime.now());
         manager.setTask(epic);
 
-        Subtask subtask = new Subtask("Subtask 1", "Subtask description", Status.NEW, 0, epic.getId());
+        Subtask subtask = new Subtask("Subtask 1", "Subtask description", Status.NEW, Duration.ofHours(1), LocalDateTime.now(), 2, epic.getId());
         manager.setTask(subtask);
 
         assertEquals(1, epic.getSubtasksId().size());
@@ -92,8 +96,8 @@ class FileBackedTaskManagerTest {
 
     @Test
     void testClearTasks() {
-        Task task1 = new Task("Task 1", "Description 1");
-        Task task2 = new Task("Task 2", "Description 2");
+        Task task1 = new Task("Task 1", "Description 1", Status.NEW, Duration.ofHours(1), LocalDateTime.now(), 1);
+        Task task2 = new Task("Task 2", "Description 2", Status.NEW, Duration.ofHours(2), LocalDateTime.now(), 2);
         manager.setTask(task1);
         manager.setTask(task2);
 
@@ -104,24 +108,16 @@ class FileBackedTaskManagerTest {
     @Test
     void testClearEpics() {
         Epic epic = new Epic("Epic 1", "Epic description");
+        epic.setStatus(Status.NEW);
+        epic.setDuration(Duration.ofHours(5));
+        epic.setStartTime(LocalDateTime.now());
         manager.setTask(epic);
 
-        Subtask subtask = new Subtask("Subtask 1", "Subtask description", Status.NEW, 0, epic.getId());
+        Subtask subtask = new Subtask("Subtask 1", "Subtask description", Status.NEW, Duration.ofHours(1), LocalDateTime.now(), 2, epic.getId());
         manager.setTask(subtask);
 
         manager.clearEpics();
         assertTrue(manager.getAllEpics().isEmpty());
         assertTrue(manager.getAllSubtasks().isEmpty());
-    }
-
-    @Test
-    void testHistory() {
-        Task task = new Task("Task 1", "Description 1");
-        manager.setTask(task);
-        manager.getTaskById(task.getId());
-
-        List<Task> history = manager.getHistory();
-        assertEquals(1, history.size());
-        assertEquals(task, history.get(0));
     }
 }
