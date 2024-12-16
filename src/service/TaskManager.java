@@ -3,11 +3,12 @@ package service;
 import model.task.Epic;
 import model.task.Subtask;
 import model.task.Task;
+import model.dictionary.Status;
+import model.dictionary.TaskType;
 
 import java.util.List;
 
 public interface TaskManager {
-
     List<Task> getAllTasks();
 
     List<Task> getAllEpics();
@@ -31,4 +32,12 @@ public interface TaskManager {
     List<Subtask> getSubtaskEpic(Epic epic);
 
     List<Task> getHistory();
+
+    List<Task> getPrioritizedTasks();
+
+    boolean isOverlap(Task task);
+
+    void updateEpicStatus(Epic epic);
+
+    Task getTaskByIdAndType(int id);
 }
