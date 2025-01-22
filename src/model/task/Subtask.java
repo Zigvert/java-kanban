@@ -5,14 +5,12 @@ import model.dictionary.TaskType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 public class Subtask extends Task {
     private int epicId;
 
     public Subtask(String name, String description) {
         super(name, description, Status.NEW, Duration.ZERO, null, 0);
-        this.epicId = 0;
         this.typeTask = TaskType.SUBTASK;
     }
 
@@ -41,20 +39,5 @@ public class Subtask extends Task {
                 ", duration=" + getDuration() +
                 ", epicId=" + epicId +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        Subtask subtask = (Subtask) o;
-        return epicId == subtask.epicId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), epicId);
     }
 }

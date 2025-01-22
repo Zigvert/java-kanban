@@ -1,5 +1,6 @@
 package service;
 
+import model.dictionary.TaskType;
 import model.task.Epic;
 import model.task.Subtask;
 import model.task.Task;
@@ -7,7 +8,7 @@ import util.TaskFileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.List;
+import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
@@ -18,6 +19,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public void setTask(Task task) {
+        if (isOverlapping(task)) {
+            throw new IllegalArgumentException("Task overlaps with an existing task.");
+        }
         super.setTask(task);
         save();
     }
@@ -46,9 +50,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
-    @Override
-    public Task getTaskById(int id) {
-        return super.getTaskById(id);
+    private boolean isOverlapping(Task newTask) {
+        for (Task existingTask : getPrioritizedTasks()) {
+            if (existingTask.getStartTime() != null && newTask.getStartTime() != null) {
+                boolean overlap = newTask.getStartTime().isBefore(existingTask.getEndTime()) &&
+                        newTask.getEndTime().isAfter(existingTask.getStartTime());
+                if (overlap) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void save() {
@@ -91,12 +103,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (line.isBlank() || line.startsWith("id,")) continue;
 
                 Task task = TaskFileUtils.fromString(line);
-                manager.setTask(task);
-                maxId = Math.max(maxId, task.getId());
+                if (!manager.isOverlapping(task)) {
+                    manager.setTask(task);
+                    maxId = Math.max(maxId, task.getId());
+                } else {
+                    System.out.println("Skipped overlapping task: " + task.getName());
+                }
             }
 
             for (Task task : manager.getAllEpics()) {
-                if (task instanceof Epic) {
+                if (task.getTypeTask() == TaskType.EPIC) {
                     Epic epic = (Epic) task;
                     List<Subtask> subtasks = manager.getSubtaskEpic(epic);
                     epic.recalculateFields(subtasks);
@@ -110,5 +126,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         return manager;
+    }
+
+    public List<Task> getPrioritizedTasks() {
+        List<Task> allTasks = new ArrayList<>();
+
+        allTasks.addAll(tasks.values());
+        allTasks.addAll(epics.values());
+        allTasks.addAll(subtasks.values());
+
+        allTasks.sort(Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())));
+
+        return allTasks;
+    }
+
+    public void printPrioritizedTasks() {
+        List<Task> prioritizedTasks = getPrioritizedTasks();
+        for (Task task : prioritizedTasks) {
+            System.out.println(task);
+        }
     }
 }

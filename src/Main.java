@@ -23,6 +23,8 @@ public class Main {
                 Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1", Status.NEW, Duration.ofHours(2), LocalDateTime.of(2024, 12, 16, 10, 0), 2, 5);
                 Subtask subtask2 = new Subtask("Подзадача 2", "Описание подзадачи 2", Status.NEW, Duration.ofHours(3), LocalDateTime.of(2024, 12, 16, 12, 0), 3, 5);
                 Subtask subtask3 = new Subtask("Подзадача 3", "Описание подзадачи 3", Status.NEW, Duration.ofHours(1), LocalDateTime.of(2024, 12, 16, 13, 0), 4, 6);
+
+                // Добавляем подзадачи с проверкой пересечений
                 tm.setTask(subtask1);
                 tm.setTask(subtask2);
                 tm.setTask(subtask3);
@@ -40,8 +42,13 @@ public class Main {
                 System.out.println(tm.getAllSubtasks());
                 System.out.println(tm.getAllEpics());
 
+                // Теперь проверим обновление задачи
                 tm.updateTask(new Task("Новое имя Задачи 1", "Новое описание задачи 1", Status.DONE, Duration.ZERO, null, task1.getId()));
+
+                // Обновление подзадачи с временем, которое не должно пересекаться с другими
                 tm.updateTask(new Subtask("Новое имя подзадачи 1", "Новое описание", Status.IN_PROGRESS, Duration.ofHours(2), LocalDateTime.of(2024, 12, 16, 14, 0), 2, subtask1.getEpicId()));
+
+                // Обновление подзадачи с корректным временем, чтобы не было пересечений
                 tm.updateTask(new Subtask(subtask3.getName(), subtask3.getDescription(), Status.DONE, Duration.ofHours(1), LocalDateTime.of(2024, 12, 16, 13, 0), 3, subtask3.getEpicId()));
 
                 System.out.println("..............");
@@ -49,4 +56,3 @@ public class Main {
                 System.out.println(tm.getAllSubtasks());
         }
 }
-

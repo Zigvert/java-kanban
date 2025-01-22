@@ -9,10 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+
 public class Epic extends Task {
-    private List<Integer> subtasksId = new ArrayList<>();
-    private Duration duration = Duration.ZERO;
-    private LocalDateTime startTime;
+    private final List<Integer> subtasksId = new ArrayList<>();
     private LocalDateTime endTime;
 
     public Epic(String name, String description) {
@@ -26,11 +25,7 @@ public class Epic extends Task {
     }
 
     public List<Integer> getSubtasksId() {
-        return subtasksId;
-    }
-
-    public void setSubtasksId(List<Integer> subtasksId) {
-        this.subtasksId = subtasksId;
+        return new ArrayList<>(subtasksId);
     }
 
     public void addSubtaskId(int subtaskId) {
@@ -43,34 +38,33 @@ public class Epic extends Task {
         subtasksId.remove(Integer.valueOf(subtaskId));
     }
 
-    public Duration getDuration() {
-        return duration;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
+    @Override
     public LocalDateTime getEndTime() {
         return endTime;
     }
 
-
     public void recalculateFields(List<Subtask> subtasks) {
-        duration = subtasks.stream()
+        if (subtasks.isEmpty()) {
+            this.duration = Duration.ZERO;
+            this.startTime = null;
+            this.endTime = null;
+            return;
+        }
+
+        this.duration = subtasks.stream()
                 .map(Subtask::getDuration)
-                .filter(d -> d != null)
+                .filter(Objects::nonNull)
                 .reduce(Duration.ZERO, Duration::plus);
 
-        startTime = subtasks.stream()
+        this.startTime = subtasks.stream()
                 .map(Subtask::getStartTime)
-                .filter(st -> st != null)
+                .filter(Objects::nonNull)
                 .min(LocalDateTime::compareTo)
                 .orElse(null);
 
-        endTime = subtasks.stream()
+        this.endTime = subtasks.stream()
                 .map(Subtask::getEndTime)
-                .filter(et -> et != null)
+                .filter(Objects::nonNull)
                 .max(LocalDateTime::compareTo)
                 .orElse(null);
     }
@@ -83,19 +77,5 @@ public class Epic extends Task {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Epic epic = (Epic) o;
-        return getId() == epic.getId();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
     }
 }

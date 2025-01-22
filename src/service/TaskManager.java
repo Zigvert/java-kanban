@@ -35,7 +35,4 @@ public interface TaskManager {
 
     boolean isOverlap(Task task);
 
-    void updateEpicStatus(Epic epic);
-
-    Task getTaskByIdAndType(int id);
 }

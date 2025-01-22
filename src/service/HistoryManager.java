@@ -11,7 +11,4 @@ public interface HistoryManager {
 
     List<Task> getHistoryTask();
 
-    void clearHistory();
-
-    int getHistorySize();
 }

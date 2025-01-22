@@ -13,8 +13,8 @@ public class Task {
     private int id;
     private Status status;
     protected TaskType typeTask;
-    private Duration duration;
-    private LocalDateTime startTime;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
     public Task(String name, String description, Status status, Duration duration, LocalDateTime startTime, int id) {
         this.name = name;
@@ -75,7 +75,7 @@ public class Task {
     }
 
     public LocalDateTime getEndTime() {
-        if (startTime == null || duration == null) {
+        if (startTime == null) {
             return null;
         }
         return startTime.plus(duration);

@@ -26,10 +26,8 @@ public class TaskFileUtils {
         Status status = Status.valueOf(fields[3]);
         String description = fields[4];
 
-
         LocalDateTime startTime = fields[5].isEmpty() ? null : LocalDateTime.parse(fields[5]);
         Duration duration = fields[6].isEmpty() ? Duration.ZERO : Duration.ofMinutes(Long.parseLong(fields[6]));
-
 
         switch (type) {
             case TASK:
@@ -37,11 +35,11 @@ public class TaskFileUtils {
             case EPIC:
                 Epic epic = new Epic(name, description, id);
 
-                if (fields.length > 7) {
+                if (fields.length > 7 && !fields[7].isEmpty()) {
                     List<Integer> subtasksId = List.of(fields[7].split(";")).stream()
                             .map(Integer::parseInt)
                             .collect(Collectors.toList());
-                    epic.setSubtasksId(subtasksId);
+                    subtasksId.forEach(epic::addSubtaskId);
                 }
                 return epic;
             case SUBTASK:
@@ -54,6 +52,7 @@ public class TaskFileUtils {
                 throw new IllegalArgumentException("Неизвестный тип задачи: " + type);
         }
     }
+
 
     public static String toString(Task task) {
         if (task == null) {

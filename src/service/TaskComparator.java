@@ -11,7 +11,7 @@ public class TaskComparator implements Comparator<Task> {
         }
 
         if (task1.getStartTime() == null && task2.getStartTime() == null) {
-            return 0;
+            return Integer.compare(task1.getId(), task2.getId());
         }
 
         if (task1.getStartTime() == null) {
@@ -22,6 +22,11 @@ public class TaskComparator implements Comparator<Task> {
             return -1;
         }
 
-        return task1.getStartTime().compareTo(task2.getStartTime());
+        int timeComparison = task1.getStartTime().compareTo(task2.getStartTime());
+        if (timeComparison == 0) {
+            return Integer.compare(task1.getId(), task2.getId());
+        }
+
+        return timeComparison;
     }
 }
