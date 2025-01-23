@@ -7,6 +7,7 @@ import model.task.Task;
 import java.util.List;
 
 public interface TaskManager {
+
     List<Task> getAllTasks();
 
     List<Task> getAllEpics();
@@ -32,7 +33,5 @@ public interface TaskManager {
     List<Task> getHistory();
 
     List<Task> getPrioritizedTasks();
-
-    boolean isOverlap(Task task);
 
 }

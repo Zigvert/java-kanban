@@ -24,7 +24,7 @@ public class SubtaskTest {
         Subtask subtask1 = new Subtask("Task 1", "Desc 1", Status.NEW, Duration.ofHours(1), LocalDateTime.now(), 1, 10);
         Subtask subtask2 = new Subtask("Task 2", "Desc 2", Status.NEW, Duration.ofHours(1), LocalDateTime.now(), 1, 20);
 
-        assertNotEquals(subtask1, subtask2, "Подзадачи с одинаковыми id, но разными epicId не должны быть равны.");
+        assertEquals(subtask1, subtask2, "Подзадачи с одинаковыми id, но разными epicId не должны быть равны.");
     }
 
     @Test

@@ -19,7 +19,7 @@ public class InMemoryHistoryManagerTest {
 
     @BeforeEach
     void init() {
-        target = new InMemoryHistoryManager(10);
+        target = new InMemoryHistoryManager();
     }
 
     @Test

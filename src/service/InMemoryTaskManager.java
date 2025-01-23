@@ -40,16 +40,25 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTasks() {
+
+        for (Task task : tasks.values()) {
+            prioritizedTasks.remove(task);
+        }
+
+
         tasks.clear();
-        prioritizedTasks.removeIf(task -> task.getTypeTask() == TaskType.TASK);
     }
+
 
     @Override
     public void clearEpics() {
         epics.clear();
         subtasks.clear();
-        prioritizedTasks.clear();
+
+
+        prioritizedTasks.removeIf(task -> task.getTypeTask() == TaskType.SUBTASK);
     }
+
 
     @Override
     public void clearSubtasks() {
@@ -67,11 +76,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskById(int id) {
         Task task = getTaskByIdAndType(id);
-        if (task != null) {
-            historyManager.add(task);
-        }
+        historyManager.add(task);
         return task;
     }
+
 
     @Override
     public void setTask(Task task) {
@@ -84,11 +92,13 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.remove(oldTask);
         }
 
+
         if (task.getTypeTask() != TaskType.EPIC && isOverlap(task)) {
             throw new IllegalArgumentException("Task overlaps with an existing task.");
         }
 
         prioritizedTasks.add(task);
+        historyManager.add(task);
 
         switch (task.getTypeTask()) {
             case TASK -> tasks.put(task.getId(), task);
@@ -105,24 +115,17 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+
     @Override
     public void updateTask(Task task) {
         TaskType type = getTypeById(task.getId());
-        if (type == null) {
+        if (type == null) { // Проверяем, существует ли задача
             throw new IllegalArgumentException("Task with the given ID does not exist.");
-        }
-
-        Task oldTask = getTaskByIdAndType(task.getId());
-        if (oldTask != null) {
-            prioritizedTasks.remove(oldTask);
-        }
-
-        if (task.getTypeTask() != TaskType.EPIC && isOverlap(task)) {
-            throw new IllegalArgumentException("Task overlaps with an existing task.");
         }
 
         setTask(task);
     }
+
 
     @Override
     public void removeTaskById(int id) {
@@ -199,12 +202,19 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
 
-        Status newStatus = (hasDone && hasNew) ? Status.IN_PROGRESS : (hasDone ? Status.DONE : Status.NEW);
-        epic.setStatus(newStatus);
+        if (hasDone && hasNew) {
+            epic.setStatus(Status.IN_PROGRESS);
+        } else if (hasDone) {
+            epic.setStatus(Status.DONE);
+        } else if (hasNew) {
+            epic.setStatus(Status.NEW);
+        } else {
+            epic.setStatus(Status.IN_PROGRESS);
+        }
     }
 
-    @Override
-    public boolean isOverlap(Task task) {
+
+    private boolean isOverlap(Task task) {
         if (task.getStartTime() == null || task.getDuration() == null) {
             return false;
         }

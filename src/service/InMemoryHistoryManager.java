@@ -48,16 +48,19 @@ public class InMemoryHistoryManager implements HistoryManager {
         removeNode(taskMap.get(id));
     }
 
+    private final List<Task> historyTasks = new ArrayList<>();
+
     @Override
     public List<Task> getHistoryTask() {
-        List<Task> tasks = new ArrayList<>();
         Node current = head;
+        historyTasks.clear();
         while (current != null) {
-            tasks.add(current.task);
+            historyTasks.add(current.task);
             current = current.next;
         }
-        return tasks;
+        return historyTasks;
     }
+
 
     private void removeNode(Node node) {
         if (node == null) return;

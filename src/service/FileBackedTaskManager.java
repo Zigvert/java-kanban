@@ -1,6 +1,5 @@
 package service;
 
-import model.dictionary.TaskType;
 import model.task.Epic;
 import model.task.Subtask;
 import model.task.Task;
@@ -19,12 +18,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public void setTask(Task task) {
-        if (isOverlapping(task)) {
-            throw new IllegalArgumentException("Task overlaps with an existing task.");
-        }
         super.setTask(task);
         save();
     }
+
 
     @Override
     public void removeTaskById(int id) {
@@ -50,18 +47,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
-    private boolean isOverlapping(Task newTask) {
-        for (Task existingTask : getPrioritizedTasks()) {
-            if (existingTask.getStartTime() != null && newTask.getStartTime() != null) {
-                boolean overlap = newTask.getStartTime().isBefore(existingTask.getEndTime()) &&
-                        newTask.getEndTime().isAfter(existingTask.getStartTime());
-                if (overlap) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
@@ -103,19 +88,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (line.isBlank() || line.startsWith("id,")) continue;
 
                 Task task = TaskFileUtils.fromString(line);
-                if (!manager.isOverlapping(task)) {
-                    manager.setTask(task);
-                    maxId = Math.max(maxId, task.getId());
-                } else {
-                    System.out.println("Skipped overlapping task: " + task.getName());
-                }
-            }
-
-            for (Task task : manager.getAllEpics()) {
-                if (task.getTypeTask() == TaskType.EPIC) {
-                    Epic epic = (Epic) task;
-                    List<Subtask> subtasks = manager.getSubtaskEpic(epic);
-                    epic.recalculateFields(subtasks);
+                switch (task.getTypeTask()) {
+                    case TASK -> {
+                        manager.setTask(task);
+                        maxId = Math.max(maxId, task.getId());
+                    }
+                    case SUBTASK -> {
+                        manager.setTask(task);
+                        Subtask subtask = (Subtask) task;
+                        Epic epic = manager.epics.get(subtask.getEpicId());
+                        if (epic != null) {
+                            epic.addSubtaskId(subtask.getId());
+                        }
+                        maxId = Math.max(maxId, subtask.getId());
+                    }
+                    case EPIC -> {
+                        manager.setTask(task);
+                        maxId = Math.max(maxId, task.getId());
+                    }
                 }
             }
 
@@ -126,24 +116,5 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         return manager;
-    }
-
-    public List<Task> getPrioritizedTasks() {
-        List<Task> allTasks = new ArrayList<>();
-
-        allTasks.addAll(tasks.values());
-        allTasks.addAll(epics.values());
-        allTasks.addAll(subtasks.values());
-
-        allTasks.sort(Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())));
-
-        return allTasks;
-    }
-
-    public void printPrioritizedTasks() {
-        List<Task> prioritizedTasks = getPrioritizedTasks();
-        for (Task task : prioritizedTasks) {
-            System.out.println(task);
-        }
     }
 }
