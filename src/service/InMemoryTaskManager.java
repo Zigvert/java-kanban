@@ -45,20 +45,19 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.remove(task);
         }
 
-
         tasks.clear();
     }
-
 
     @Override
     public void clearEpics() {
         epics.clear();
+
+        for (Subtask subtask : subtasks.values()) {
+            prioritizedTasks.remove(subtask);
+        }
+
         subtasks.clear();
-
-
-        prioritizedTasks.removeIf(task -> task.getTypeTask() == TaskType.SUBTASK);
     }
-
 
     @Override
     public void clearSubtasks() {
@@ -75,11 +74,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(int id) {
-        Task task = getTaskByIdAndType(id);
-        historyManager.add(task);
+        Task task = tasks.get(id);
+        if (task != null) {
+            historyManager.add(task);
+        }
         return task;
     }
-
 
     @Override
     public void setTask(Task task) {
@@ -98,7 +98,6 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         prioritizedTasks.add(task);
-        historyManager.add(task);
 
         switch (task.getTypeTask()) {
             case TASK -> tasks.put(task.getId(), task);
@@ -115,17 +114,15 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-
     @Override
     public void updateTask(Task task) {
         TaskType type = getTypeById(task.getId());
-        if (type == null) { // Проверяем, существует ли задача
+        if (type == null) {
             throw new IllegalArgumentException("Task with the given ID does not exist.");
         }
 
         setTask(task);
     }
-
 
     @Override
     public void removeTaskById(int id) {
@@ -212,7 +209,6 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(Status.IN_PROGRESS);
         }
     }
-
 
     private boolean isOverlap(Task task) {
         if (task.getStartTime() == null || task.getDuration() == null) {

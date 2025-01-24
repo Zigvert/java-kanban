@@ -140,11 +140,13 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.setTask(task1);
         taskManager.setTask(task2);
 
+        taskManager.getTaskById(task1.getId());
+        taskManager.getTaskById(task2.getId());
+
         List<Task> history = taskManager.getHistory();
         assertEquals(2, history.size(), "История должна содержать 2 задачи");
         assertTrue(history.contains(task1), "История должна содержать task1");
         assertTrue(history.contains(task2), "История должна содержать task2");
     }
-
 
 }
