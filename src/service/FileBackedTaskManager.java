@@ -7,7 +7,7 @@ import util.TaskFileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.List;
+import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
@@ -21,6 +21,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         super.setTask(task);
         save();
     }
+
 
     @Override
     public void removeTaskById(int id) {
@@ -46,16 +47,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
-    @Override
-    public Task getTaskById(int id) {
-        Task task = super.getTaskById(id);
-        save();
-        return task;
-    }
 
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("id,type,name,status,description,epic\n");
+            writer.write("id,type,name,status,description,startTime,duration,epic\n");
 
             for (Task task : tasks.values()) {
                 writer.write(TaskFileUtils.toString(task));
@@ -72,13 +67,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 writer.newLine();
             }
 
+            writer.flush();
+
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка сохранения данных в файл: " + file.getAbsolutePath(), e);
+            throw new ManagerSaveException("Error saving data to file: " + file.getAbsolutePath(), e);
         }
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
+        if (!file.exists()) {
+            return manager;
+        }
+
         try {
             List<String> lines = Files.readAllLines(file.toPath());
             int maxId = 0;
@@ -87,25 +88,33 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (line.isBlank() || line.startsWith("id,")) continue;
 
                 Task task = TaskFileUtils.fromString(line);
-                manager.setTask(task);
-                maxId = Math.max(maxId, task.getId());
-            }
-
-            for (Task task : manager.getAllTasks()) {
-                if (task instanceof Subtask) {
-                    Subtask subtask = (Subtask) task;
-                    Epic epic = (Epic) manager.getTaskById(subtask.getEpicId());
-                    if (epic != null) {
-                        epic.addSubtaskId(subtask.getId());
+                switch (task.getTypeTask()) {
+                    case TASK -> {
+                        manager.setTask(task);
+                        maxId = Math.max(maxId, task.getId());
+                    }
+                    case SUBTASK -> {
+                        manager.setTask(task);
+                        Subtask subtask = (Subtask) task;
+                        Epic epic = manager.epics.get(subtask.getEpicId());
+                        if (epic != null) {
+                            epic.addSubtaskId(subtask.getId());
+                        }
+                        maxId = Math.max(maxId, subtask.getId());
+                    }
+                    case EPIC -> {
+                        manager.setTask(task);
+                        maxId = Math.max(maxId, task.getId());
                     }
                 }
             }
 
-            manager.synchronizeCounterId(maxId);
+            manager.counterId = maxId + 1;
 
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка загрузки данных из файла: " + file.getAbsolutePath(), e);
+            throw new ManagerSaveException("Error loading data from file: " + file.getAbsolutePath(), e);
         }
+
         return manager;
     }
 }
