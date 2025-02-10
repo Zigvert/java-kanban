@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
 public class Epic extends Task {
     private final List<Integer> subtasksId = new ArrayList<>();
     private LocalDateTime endTime;
@@ -67,6 +66,17 @@ public class Epic extends Task {
                 .filter(Objects::nonNull)
                 .max(LocalDateTime::compareTo)
                 .orElse(null);
+    }
+
+    // Используйте геттер и сеттер для работы с status
+    @Override
+    public Status getStatus() {
+        return super.getStatus(); // вызываем метод родительского класса
+    }
+
+    @Override
+    public void setStatus(Status status) {
+        super.setStatus(status); // вызываем метод родительского класса
     }
 
     @Override

@@ -24,13 +24,23 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Node tail;
     private final Map<Integer, Node> taskMap = new HashMap<>();
 
+    private final List<Task> historyTasks = new ArrayList<>(); // Коллекция для истории задач
+
+    @Override
+    public void clearHistory() {
+        head = null;
+        tail = null;
+        taskMap.clear();  // Очищаем карту задач
+        historyTasks.clear();  // Очищаем список истории задач
+    }
+
     @Override
     public void add(Task task) {
         if (task == null) {
             return;
         }
 
-        removeNode(taskMap.get(task.getId()));
+        removeNode(taskMap.get(task.getId())); // Удаляем задачу, если она уже была
 
         Node newNode = new Node(task, tail);
         if (tail == null) {
@@ -45,15 +55,13 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        removeNode(taskMap.get(id));
+        removeNode(taskMap.get(id));  // Удаляем задачу по ID
     }
-
-    private final List<Task> historyTasks = new ArrayList<>();
 
     @Override
     public List<Task> getHistoryTask() {
         Node current = head;
-        historyTasks.clear();
+        historyTasks.clear();  // Очищаем историю перед добавлением новых элементов
         while (current != null) {
             historyTasks.add(current.task);
             current = current.next;
@@ -61,7 +69,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         return historyTasks;
     }
 
-
+    // Вспомогательный метод для удаления узла
     private void removeNode(Node node) {
         if (node == null) return;
 

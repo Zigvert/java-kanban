@@ -26,12 +26,16 @@ public interface TaskManager {
 
     void updateTask(Task task);
 
-    void removeTaskById(int id);
+    boolean removeTaskById(int id);
 
     List<Subtask> getSubtaskEpic(Epic epic);
 
     List<Task> getHistory();
 
     List<Task> getPrioritizedTasks();
+
+    void addSubtask(Subtask subtask);
+
+    boolean removeSubtaskById(int id);
 
 }

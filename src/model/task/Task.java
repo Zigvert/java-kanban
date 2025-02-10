@@ -16,6 +16,7 @@ public class Task {
     protected Duration duration;
     protected LocalDateTime startTime;
 
+    // Конструктор для создания задачи с полным набором параметров
     public Task(String name, String description, Status status, Duration duration, LocalDateTime startTime, int id) {
         this.name = name;
         this.description = description;
@@ -26,10 +27,12 @@ public class Task {
         this.id = id;
     }
 
+    // Конструктор для задач без идентификатора и времени начала
     public Task(String name, String description, Status status) {
         this(name, description, status, Duration.ZERO, null, 0);
     }
 
+    // Геттеры и сеттеры
     public Status getStatus() {
         return status;
     }
@@ -74,6 +77,7 @@ public class Task {
         this.startTime = startTime;
     }
 
+    // Время окончания задачи вычисляется на основе времени начала и продолжительности
     public LocalDateTime getEndTime() {
         if (startTime == null) {
             return null;
@@ -81,6 +85,7 @@ public class Task {
         return startTime.plus(duration);
     }
 
+    // Переопределение equals для проверки задач по ID
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -89,11 +94,13 @@ public class Task {
         return id == task.id;
     }
 
+    // Переопределение hashCode для корректной работы в коллекциях
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
 
+    // Переопределение метода toString для красивого вывода информации о задаче
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "{" +

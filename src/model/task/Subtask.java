@@ -5,6 +5,7 @@ import model.dictionary.TaskType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Subtask extends Task {
     private int epicId;
@@ -26,6 +27,31 @@ public class Subtask extends Task {
 
     public void setEpicId(int epicId) {
         this.epicId = epicId;
+    }
+
+    // Проверка на пересечение времени с другими подзадачами
+    public boolean isOverlapping(List<Subtask> subtasks) {
+        for (Subtask subtask : subtasks) {
+            if (this.getStartTime().isBefore(subtask.getEndTime()) && this.getEndTime().isAfter(subtask.getStartTime())) {
+                return true; // Перекрытие с другой подзадачей
+            }
+        }
+        return false;
+    }
+
+    // Проверка завершенности подзадачи и обновление статуса эпика
+    public boolean isCompleted() {
+        return getStatus() == Status.DONE;
+    }
+
+    // Обновление статуса эпика в зависимости от статуса подзадач
+    public boolean isEpicCompleted(List<Subtask> subtasks) {
+        for (Subtask subtask : subtasks) {
+            if (!subtask.isCompleted()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
