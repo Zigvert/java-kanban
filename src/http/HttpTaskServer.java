@@ -8,15 +8,18 @@ import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
     private HttpServer server;
+    private TaskManager taskManager;
+
+    public HttpTaskServer(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
 
     public static void main(String[] args) throws IOException {
-        HttpTaskServer taskServer = new HttpTaskServer();
+        HttpTaskServer taskServer = new HttpTaskServer(ManagerProvider.getDefault());
         taskServer.start();
     }
 
     public void start() throws IOException {
-        TaskManager taskManager = ManagerProvider.getDefault();
-
         server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/tasks", new TaskHandler());
         server.createContext("/subtasks", new SubtaskHandler());

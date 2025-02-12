@@ -68,17 +68,6 @@ public class Epic extends Task {
                 .orElse(null);
     }
 
-    // Используйте геттер и сеттер для работы с status
-    @Override
-    public Status getStatus() {
-        return super.getStatus(); // вызываем метод родительского класса
-    }
-
-    @Override
-    public void setStatus(Status status) {
-        super.setStatus(status); // вызываем метод родительского класса
-    }
-
     @Override
     public String toString() {
         return super.toString() +

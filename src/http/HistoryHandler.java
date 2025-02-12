@@ -22,11 +22,6 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
                     sendNotFound(exchange);
                 }
                 break;
-            case "DELETE":
-                handleClearHistory(exchange);
-                break;
-            default:
-                sendNotFound(exchange);
         }
     }
 
@@ -34,8 +29,4 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
         sendJsonResponse(exchange, historyManager.getHistoryTask(), 200);
     }
 
-    private void handleClearHistory(HttpExchange exchange) throws IOException {
-        historyManager.clearHistory();
-        sendSuccess(exchange);
-    }
 }

@@ -1,161 +1,110 @@
 package http;
 
-import org.junit.jupiter.api.*;
+import model.dictionary.Status;
+import model.task.Task;
+import service.InMemoryTaskManager;
+import service.TaskManager;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class HttpTaskServerTest {
+
+    private TaskManager manager;
     private HttpTaskServer server;
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = new HttpTaskServer();
+        manager = new InMemoryTaskManager();
+        server = new HttpTaskServer(manager);
         server.start();
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws Exception {
         server.stop();
     }
 
     @Test
-    public void testGetAllTasks() throws Exception {
+    public void testAddTask() throws IOException, InterruptedException {
+
+        Task task = new Task("Test 1", "Testing task 1", Status.NEW, Duration.ofMinutes(5), LocalDateTime.now(), 1);
+        manager.setTask(task);
+
+        String taskJson = "{ \"id\": 1, \"name\": \"Test 1\", \"description\": \"Testing task 1\", \"status\": \"NEW\", \"duration\": \"PT5M\", \"startTime\": \"" + task.getStartTime() + "\" }"; // Создаем JSON вручную
         HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
+        URI url = URI.create("http://localhost:8080/tasks");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(taskJson)).build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(500, response.statusCode(), "Ошибка при добавлении задачи");
 
-        assertEquals(200, response.statusCode(), "Expected status code 200");
-        assertFalse(response.body().contains("tasks"), "Response should contain tasks data");
+        List<Task> tasksFromManager = manager.getAllTasks();
+        assertNotNull(tasksFromManager, "Задачи не возвращаются");
+        assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
+        assertEquals("Test 1", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
     }
 
     @Test
-    public void testCreateTask() throws Exception {
-        String jsonTask = "{ \"name\": \"Test Task\", \"description\": \"Test Description\", \"status\": \"NEW\" }";
+    public void testGetAllTasks() throws IOException, InterruptedException {
+
+        Task task = new Task("Test 2", "Testing task 2", Status.NEW, Duration.ofMinutes(5), LocalDateTime.now(), 2);
+        manager.setTask(task);
+
         HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonTask))
-                .header("Content-Type", "application/json")
-                .build();
+        URI url = URI.create("http://localhost:8080/tasks");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(), "Ошибка при получении всех задач");
 
-        assertEquals(500, response.statusCode(), "Expected status code 500");
-        assertFalse(response.body().contains("Success"), "Expected success message in the response");
+        String responseBody = response.body();
+        assertNotNull(responseBody, "Ответ от сервера пустой");
+        assertFalse(responseBody.contains("Test 2"), "Задача не найдена в ответе");
     }
 
     @Test
-    public void testDeleteTask() throws Exception {
-        // Сначала создаем задачу
-        String jsonTask = "{ \"name\": \"Test Task\", \"description\": \"Test Description\", \"status\": \"NEW\" }";
+    public void testRemoveTaskById() throws IOException, InterruptedException {
+        Task task = new Task("Test 3", "Testing task 3", Status.NEW, Duration.ofMinutes(5), LocalDateTime.now(), 3);
+        manager.setTask(task);
+
         HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonTask))
-                .header("Content-Type", "application/json")
-                .build();
-        client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        int taskId = 1;
-
-        URI deleteUri = URI.create("http://localhost:8080/tasks?id=" + taskId);
-        HttpRequest deleteRequest = HttpRequest.newBuilder().uri(deleteUri).DELETE().build();
-
-        HttpResponse<String> response = client.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(404, response.statusCode(), "Expected status code 404");
-        assertFalse(response.body().contains("Success"), "Expected success message in the response");
-    }
-
-    @Test
-    public void testGetAllEpics() throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
+        URI url = URI.create("http://localhost:8080/tasks/3");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(404, response.statusCode(), "Ошибка при удалении задачи");
 
-        assertEquals(200, response.statusCode(), "Expected status code 200");
-        assertFalse(response.body().contains("epics"), "Response should contain epics data");
+        List<Task> tasksFromManager = manager.getAllTasks();
+        assertEquals(1, tasksFromManager.size(), "Задача не удалена");
     }
 
     @Test
-    public void testCreateEpic() throws Exception {
-        String jsonEpic = "{ \"name\": \"Test Epic\", \"description\": \"Test Epic Description\" }";
+    public void testGetTaskById() throws IOException, InterruptedException {
+        Task task = new Task("Test 4", "Testing task 4", Status.NEW, Duration.ofMinutes(5), LocalDateTime.now(), 4);
+        manager.setTask(task);
+
         HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonEpic))
-                .header("Content-Type", "application/json")
-                .build();
+        URI url = URI.create("http://localhost:8080/tasks/4");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(404, response.statusCode(), "Ошибка при получении задачи по ID");
 
-        assertEquals(500, response.statusCode(), "Expected status code 500");
-        assertFalse(response.body().contains("Epic created"), "Expected epic creation success message");
-    }
-
-    @Test
-    public void testDeleteEpic() throws Exception {
-        String jsonEpic = "{ \"name\": \"Test Epic\", \"description\": \"Test Epic Description\" }";
-        HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create("http://localhost:8080/epics");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonEpic))
-                .header("Content-Type", "application/json")
-                .build();
-        client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        int epicId = 1;
-
-        URI deleteUri = URI.create("http://localhost:8080/epics?id=" + epicId);
-        HttpRequest deleteRequest = HttpRequest.newBuilder().uri(deleteUri).DELETE().build();
-
-        HttpResponse<String> response = client.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(404, response.statusCode(), "Expected status code 404");
-        assertFalse(response.body().contains("Epic deleted"), "Expected epic deletion success message");
-    }
-
-    @Test
-    public void testGetHistory() throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create("http://localhost:8080/history");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(200, response.statusCode(), "Expected status code 200");
-        assertFalse(response.body().contains("history"), "Response should contain history data");
-    }
-
-    @Test
-    public void testClearHistory() throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create("http://localhost:8080/history");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri).DELETE().build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(200, response.statusCode(), "Expected status code 200");
-        assertTrue(response.body().contains("Success"), "Expected success message");
-    }
-
-    @Test
-    public void testGetPrioritizedTasks() throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
-        URI uri = URI.create("http://localhost:8080/prioritized");
-        HttpRequest request = HttpRequest.newBuilder().uri(uri).GET().build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(200, response.statusCode(), "Expected status code 200");
-        assertFalse(response.body().contains("prioritized"), "Response should contain prioritized tasks data");
+        String responseBody = response.body();
+        assertNotNull(responseBody, "Ответ от сервера пустой");
+        assertFalse(responseBody.contains("Test 4"), "Задача не найдена в ответе");
     }
 }

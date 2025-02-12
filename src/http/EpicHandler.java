@@ -1,14 +1,13 @@
 package http;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import service.TaskManager;
 import model.task.Epic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class EpicHandler extends BaseHttpHandler implements HttpHandler {
+public class EpicHandler extends BaseHttpHandler {
     private final TaskManager manager;
 
     public EpicHandler(TaskManager manager) {
@@ -24,7 +23,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
                 handleGetEpic(exchange);
                 break;
             case "POST":
-                handleCreateEpic(exchange);
+                handleCreateOrUpdateEpic(exchange);
                 break;
             case "DELETE":
                 handleDeleteEpic(exchange);
@@ -36,20 +35,27 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
 
     private void handleGetEpic(HttpExchange exchange) throws IOException {
         String response = gson.toJson(manager.getAllEpics());
-        sendResponse(exchange, response, 200);
+        sendJsonResponse(exchange, response, 200);
     }
 
-    private void handleCreateEpic(HttpExchange exchange) throws IOException {
+    private void handleCreateOrUpdateEpic(HttpExchange exchange) throws IOException {
         try (InputStream inputStream = exchange.getRequestBody()) {
             Epic epic = gson.fromJson(new String(inputStream.readAllBytes()), Epic.class);
+
             if (epic == null || epic.getName() == null || epic.getDescription() == null) {
                 sendText(exchange, "Invalid epic data", 400);
                 return;
             }
-            manager.setTask(epic);
-            sendResponse(exchange, "Epic created", 201);
+
+            if (epic.getId() == 0) {
+                manager.setTask(epic);
+                sendResponse(exchange, "Epic created", 201);
+            } else {
+                manager.updateTask(epic);
+                sendResponse(exchange, "Epic updated", 200);
+            }
         } catch (Exception e) {
-            sendText(exchange, "Error creating epic", 500);
+            sendText(exchange, "Error processing epic", 500);
         }
     }
 

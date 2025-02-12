@@ -38,4 +38,6 @@ public interface TaskManager {
 
     boolean removeSubtaskById(int id);
 
+    boolean removeEpicById(int id);
+
 }
