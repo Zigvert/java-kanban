@@ -50,16 +50,16 @@ public class InMemoryTaskManager implements TaskManager {
     public boolean removeEpicById(int id) {
         Epic epic = epics.remove(id);
         if (epic != null) {
-            prioritizedTasks.remove(epic);
-            historyManager.remove(id);
             for (Integer subtaskId : epic.getSubtasksId()) {
                 subtasks.remove(subtaskId);
                 historyManager.remove(subtaskId);
             }
+            historyManager.remove(id);
             return true;
         }
         return false;
     }
+
 
     @Override
     public List<Task> getAllTasks() {
@@ -173,7 +173,7 @@ public class InMemoryTaskManager implements TaskManager {
     public boolean removeTaskById(int id) {
         TaskType type = getTypeById(id);
         if (type == null) {
-            return false; // Возвращаем false, если задача не найдена
+            return false;
         }
         Task taskToRemove = switch (type) {
             case TASK -> tasks.remove(id);

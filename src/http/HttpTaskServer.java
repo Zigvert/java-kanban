@@ -21,7 +21,7 @@ public class HttpTaskServer {
 
     public void start() throws IOException {
         server = HttpServer.create(new InetSocketAddress(8080), 0);
-        server.createContext("/tasks", new TaskHandler());
+        server.createContext("/tasks", new TaskHandler(taskManager));
         server.createContext("/subtasks", new SubtaskHandler());
         server.createContext("/epics", new EpicHandler(taskManager));
         server.createContext("/history", new HistoryHandler());

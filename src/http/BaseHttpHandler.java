@@ -22,9 +22,6 @@ public abstract class BaseHttpHandler implements HttpHandler {
             .registerTypeAdapter(Duration.class, new DurationAdapter())
             .create();
 
-    @Override
-    public abstract void handle(HttpExchange exchange) throws IOException;
-
     protected void sendText(HttpExchange exchange, String text, int responseCode) throws IOException {
         exchange.sendResponseHeaders(responseCode, text.getBytes().length);
         try (OutputStream os = exchange.getResponseBody()) {
@@ -33,7 +30,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
     }
 
     protected void sendNotFound(HttpExchange exchange) throws IOException {
-        sendText(exchange, "Resource not found", 404);
+        sendText(exchange, "Resource not found", 200);
     }
 
     protected void sendHasInteractions(HttpExchange exchange) throws IOException {
@@ -44,7 +41,6 @@ public abstract class BaseHttpHandler implements HttpHandler {
         sendText(exchange, "Success", 200);
     }
 
-    // Метод для отправки JSON-ответа
     protected void sendJsonResponse(HttpExchange exchange, Object responseObject, int responseCode) throws IOException {
         try {
             String jsonResponse = gson.toJson(responseObject);
@@ -54,7 +50,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
         }
     }
 
-    private static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
+    public static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
         private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
         @Override
@@ -68,7 +64,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
         }
     }
 
-    private static class DurationAdapter implements JsonSerializer<Duration>, JsonDeserializer<Duration> {
+    public static class DurationAdapter implements JsonSerializer<Duration>, JsonDeserializer<Duration> {
         @Override
         public JsonElement serialize(Duration src, Type typeOfSrc, com.google.gson.JsonSerializationContext context) {
             return src == null ? null : context.serialize(src.toString());
