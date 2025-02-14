@@ -10,7 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
-    private TaskManager taskManager = ManagerProvider.getDefault();
+    private final TaskManager taskManager;
+
+    public SubtaskHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {

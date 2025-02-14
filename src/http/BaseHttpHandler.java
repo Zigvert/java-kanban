@@ -30,7 +30,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
     }
 
     protected void sendNotFound(HttpExchange exchange) throws IOException {
-        sendText(exchange, "Resource not found", 200);
+        sendText(exchange, "Resource not found", 404);
     }
 
     protected void sendHasInteractions(HttpExchange exchange) throws IOException {

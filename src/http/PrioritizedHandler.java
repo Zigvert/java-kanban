@@ -7,7 +7,11 @@ import service.ManagerProvider;
 import java.io.IOException;
 
 public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
-    private TaskManager taskManager = ManagerProvider.getDefault();
+    private final TaskManager taskManager;
+
+    public PrioritizedHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {

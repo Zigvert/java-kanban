@@ -50,7 +50,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
         String query = exchange.getRequestURI().getQuery();
         System.out.println("[handleGetTaskById] Query: " + query);
         if (query == null || !query.contains("id=")) {
-            sendText(exchange, "Task ID is required", 400);
+            sendText(exchange, "Task ID is required", 404);
             return;
         }
 

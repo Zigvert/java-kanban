@@ -4,11 +4,16 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import service.HistoryManager;
 import service.ManagerProvider;
+import service.TaskManager;
 
 import java.io.IOException;
 
 public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
-    private HistoryManager historyManager = ManagerProvider.getDefaultHistory();
+    private final HistoryManager historyManager;
+
+    public HistoryHandler(HistoryManager historyManager) {
+        this.historyManager = historyManager;
+    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {

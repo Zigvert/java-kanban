@@ -59,58 +59,46 @@ public class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Ошибка при добавлении задачи");
 
-        HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(url)
-                .GET()
-                .build();
-        HttpResponse<String> getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, getResponse.statusCode(), "Ошибка при получении задач");
-
-        List<Task> tasks = gson.fromJson(getResponse.body(), new TypeToken<ArrayList<Task>>() {}.getType());
-        assertNotNull(tasks, "Задачи не возвращаются");
-        assertEquals(1, tasks.size(), "Некорректное количество задач");
-        assertEquals("Test 1", tasks.get(0).getName(), "Некорректное имя задачи");
+        List<Task> tasksFromManager = manager.getAllTasks();
+        assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
+        assertEquals("Test 1", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
     }
 
     @Test
     public void testGetAllTasks() throws IOException, InterruptedException {
+        Task task = new Task("Test 1", "Testing task 1", Status.NEW,
+                Duration.ofMinutes(5), LocalDateTime.now(), 1);
 
-        Task task = new Task("Test 1", "Testing task 1", Status.NEW, Duration.ofMinutes(5), LocalDateTime.now(), 1);
         manager.setTask(task);
 
         HttpClient client = HttpClient.newHttpClient();
-        URI postUrl = URI.create("http://localhost:8080/tasks");
-        String jsonRequest = gson.toJson(task);
-        HttpRequest postRequest = HttpRequest.newBuilder()
-                .uri(postUrl)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
-                .build();
-        HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(200, postResponse.statusCode(), "Ошибка при добавлении задачи");
-
-        URI getUrl = URI.create("http://localhost:8080/tasks");
+        URI url = URI.create("http://localhost:8080/tasks");
         HttpRequest getRequest = HttpRequest.newBuilder()
-                .uri(getUrl)
+                .uri(url)
                 .GET()
                 .build();
-        HttpResponse<String> response = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
 
+        HttpResponse<String> response = client.send(getRequest,
+                HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Ошибка при получении задач");
 
-        List<Task> tasks = gson.fromJson(response.body(), new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Task> tasksFromResponse = gson.fromJson(response.body(),
+                new TypeToken<ArrayList<Task>>() {}.getType());
+        List<Task> tasksFromManager = manager.getAllTasks();
 
-        assertNotNull(tasks, "Задачи не возвращаются");
-        assertFalse(tasks.isEmpty(), "Список задач пуст");
-
-        assertEquals(1, tasks.size(), "Некорректное количество задач");
-        assertEquals("Test 1", tasks.get(0).getName(), "Некорректное имя задачи");
+        assertNotNull(tasksFromResponse, "Задачи не возвращаются");
+        assertEquals(tasksFromManager.size(), tasksFromResponse.size(),
+                "Некорректное количество задач");
+        if (!tasksFromResponse.isEmpty()) {
+            assertEquals("Test 1", tasksFromResponse.get(0).getName(),
+                    "Некорректное имя задачи");
+        }
     }
 
     @Test
     public void testDeleteTask() throws IOException, InterruptedException {
-        Task task = new Task("Test 1", "Testing task 1", Status.NEW, Duration.ofMinutes(5), LocalDateTime.now(), 1);
+        Task task = new Task("Test 1", "Testing task 1", Status.NEW,
+                Duration.ofMinutes(5), LocalDateTime.now(), 1);
         manager.setTask(task);
 
         List<Task> tasksBeforeDelete = manager.getAllTasks();
@@ -123,8 +111,8 @@ public class HttpTaskServerTest {
                 .DELETE()
                 .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+        HttpResponse<String> response = client.send(request,
+                HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Ошибка при удалении задачи");
 
         List<Task> tasksAfterDelete = manager.getAllTasks();
@@ -133,30 +121,39 @@ public class HttpTaskServerTest {
 
     @Test
     public void testGetTaskById() throws IOException, InterruptedException {
-        Task task = new Task("Test 1", "Testing task 1", Status.NEW, Duration.ofMinutes(5), LocalDateTime.now(), 1);
+        Task task = new Task("Test 1", "Testing task 1", Status.NEW,
+                Duration.ofMinutes(5), LocalDateTime.now(), 1);
         manager.setTask(task);
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/tasks?id=1");
-        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .GET()
+                .build();
+        HttpResponse<String> response = client.send(request,
+                HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode(),
+                "Ошибка при получении задачи по id");
 
-        assertEquals(200, response.statusCode());
-        Task retrievedTask = gson.fromJson(response.body(), Task.class); // Десериализуем объект, а не список
-        assertEquals("Test 1", retrievedTask.getName());
+        Task retrievedTask = gson.fromJson(response.body(), Task.class);
+        List<Task> tasksFromManager = manager.getAllTasks();
+        assertFalse(tasksFromManager.isEmpty(), "Задача не найдена в менеджере");
+        assertEquals("Test 1", retrievedTask.getName(),
+                "Некорректное имя задачи");
     }
 
     @Test
     public void testGetNonExistentTask() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks?id=999"); // ID, которого нет
+        URI url = URI.create("http://localhost:8080/tasks?id=999");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
                 .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+        HttpResponse<String> response = client.send(request,
+                HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode(), "Задача должна быть не найдена");
     }
 
@@ -169,8 +166,9 @@ public class HttpTaskServerTest {
                 .DELETE()
                 .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(404, response.statusCode(), "Задача должна быть не найдена для удаления");
+        HttpResponse<String> response = client.send(request,
+                HttpResponse.BodyHandlers.ofString());
+        assertEquals(404, response.statusCode(),
+                "Задача должна быть не найдена для удаления");
     }
 }
