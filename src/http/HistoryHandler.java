@@ -2,16 +2,15 @@ package http;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import service.HistoryManager;
-
+import service.TaskManager;
 
 import java.io.IOException;
 
 public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
-    private final HistoryManager historyManager;
+    private final TaskManager taskManager;
 
-    public HistoryHandler(HistoryManager historyManager) {
-        this.historyManager = historyManager;
+    public HistoryHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
     }
 
     @Override
@@ -30,7 +29,7 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     private void handleGetHistory(HttpExchange exchange) throws IOException {
-        sendJsonResponse(exchange, historyManager.getHistoryTask(), 200);
+        sendJsonResponse(exchange, taskManager.getHistory(), 200);
     }
 
 }
